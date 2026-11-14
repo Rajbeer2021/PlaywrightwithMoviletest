@@ -1,7 +1,4 @@
 
 node_modules/
-playwright-report/
-browserstack-report/
-test-results/
-log/
+reports/
 .env

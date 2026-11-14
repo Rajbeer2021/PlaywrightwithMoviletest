@@ -1,50 +1,83 @@
-FINAL BROWSERSTACK SETUP
+FINAL COMMAND REFERENCE
 
-Important:
-- Keep only one BrowserStack YAML file.
-- Use one platform entry in browserstack.yml for the OS/browser you want to run.
-- Do not hardcode BrowserStack user credentials in repo files.
-- The BrowserStack SDK reads credentials from environment variables.
+IMPORTANT
+- Keep only one BrowserStack YAML file: browserstack.yml
+- Do not hardcode credentials in repo files
+- Load BrowserStack credentials into the active shell before running BrowserStack commands
+- Use local Playwright commands for smoke/sanity/regression runs without BrowserStack matrix expansion
 
-PowerShell setup (local machine)
+PowerShell: set BrowserStack credentials and log folder
 $env:BROWSERSTACK_USERNAME="YOUR_BROWSERSTACK_USERNAME"
 $env:BROWSERSTACK_ACCESS_KEY="YOUR_BROWSERSTACK_ACCESS_KEY"
+$env:BROWSERSTACK_LOG_DIR="./reports/log"
 
-Then run:
+Local Playwright runs (headless + headed)
+# Smoke - headless
+npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js
 
-# Default single target: Windows 11 + Chrome
+# Smoke - headed
+npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js --headed
+
+# Sanity - headless
+npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js
+
+# Sanity - headed
+npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js --headed
+
+# Regression - headless
+npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js
+
+# Regression - headed
+npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js --headed
+
+# Full local suite
+npx playwright test tests/orangehrm.spec.js --config=playwright.config.js
+
+BrowserStack runs (using single YAML only)
+# BrowserStack smoke
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# BrowserStack regression
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# BrowserStack sanity
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@sanity" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# BrowserStack full suite
 npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
 
-# Verify selection without running tests
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome --list
-
-# Windows 10 + Chrome
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows10-chrome
-
-# Windows 11 + Edge
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-edge
-
-# Windows 11 + Firefox
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-firefox
-
-# macOS + Safari/WebKit
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=macos-safari
-
-# Samsung S25 + Chrome
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=samsung-s25-chrome
-
-# Pixel 10 + Chrome
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=pixel10-chrome
-
-# Pixel 9 + Chrome
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=pixel9-chrome
+Single sequential command block (copy/paste)
+$env:BROWSERSTACK_USERNAME="YOUR_BROWSERSTACK_USERNAME";
+$env:BROWSERSTACK_ACCESS_KEY="YOUR_BROWSERSTACK_ACCESS_KEY";
+$env:BROWSERSTACK_LOG_DIR="./reports/log";
+Write-Host "LOCAL SMOKE HEADLESS";
+ npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js;
+Write-Host "LOCAL SMOKE HEADED";
+ npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js --headed;
+Write-Host "LOCAL SANITY HEADLESS";
+ npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js;
+Write-Host "LOCAL SANITY HEADED";
+ npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js --headed;
+Write-Host "LOCAL REGRESSION HEADLESS";
+ npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js;
+Write-Host "LOCAL REGRESSION HEADED";
+ npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js --headed;
+Write-Host "BROWSERSTACK SMOKE";
+ npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome;
+Write-Host "BROWSERSTACK REGRESSION";
+ npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome;
+Write-Host "BROWSERSTACK SANITY";
+ npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@sanity" -- --config=playwright.browserstack.config.js --project=windows-chrome
 
 NPM scripts
-npm run test:bs:single
 npm run test:smoke
+npm run test:sanity
 npm run test:regression
+npm run test:bs:smoke
+npm run test:bs:regression
+npm run test:bs:sanity
 
 Troubleshooting
-- If the SDK returns ERROR_INVALID_CREDENTIALS, the BrowserStack username or access key is wrong, expired, or not loaded into the current shell/session.
-- If CLI bootstrap warns about sdk-assets.browserstack.com being blocked, that's a network/whitelist issue, but the actual rejection in this project is from invalid credentials.
-- Use a valid BrowserStack account username and access key from the BrowserStack dashboard, then rerun the command above.
+- If BrowserStack returns ERROR_INVALID_CREDENTIALS, the username or access key is wrong, expired, or not loaded into the current PowerShell session.
+- If you want a different BrowserStack target, update the single platform entry in browserstack.yml and rerun.
+- Keep the reports in one folder: ./reports

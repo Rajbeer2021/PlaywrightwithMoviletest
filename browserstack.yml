@@ -15,6 +15,7 @@ buildName: GitHub Actions BrowserStack Build
 buildIdentifier: '#${BUILD_NUMBER}'
 
 framework: playwright
+logDir: ./reports/log
 logLevel: error
 
 platforms:

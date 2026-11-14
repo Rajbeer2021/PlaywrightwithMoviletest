@@ -7,11 +7,12 @@ module.exports = defineConfig({
 
   timeout: 60000,
   retries: 0,
+  outputDir: 'reports/test-results',
 
   reporter: [
     ['list'],
     ['html', {
-      outputFolder: 'browserstack-report',
+      outputFolder: 'reports/browserstack-report',
       open: 'never'
     }]
   ],
