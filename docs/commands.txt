@@ -77,6 +77,20 @@ npm run test:bs:smoke
 npm run test:bs:regression
 npm run test:bs:sanity
 
+Run on-demand from GitHub
+Use these GitHub CLI commands:
+
+gh workflow run smoke.yml --ref main --field run_on_browserstack=false
+gh workflow run smoke.yml --ref main --field run_on_browserstack=true --field browserstack_project=windows-chrome
+
+gh workflow run sanity.yml --ref main --field run_on_browserstack=false
+gh workflow run sanity.yml --ref main --field run_on_browserstack=true --field browserstack_project=windows-chrome
+
+gh workflow run regression.yml --ref main --field run_target=github
+gh workflow run regression.yml --ref main --field run_target=browserstack --field browserstack_project=windows-chrome
+
+gh workflow run browserstack.yml --ref main --field browserstack_project=windows-chrome
+
 Troubleshooting
 - If BrowserStack returns ERROR_INVALID_CREDENTIALS, the username or access key is wrong, expired, or not loaded into the current PowerShell session.
 - If you want a different BrowserStack target, update the single platform entry in browserstack.yml and rerun.
