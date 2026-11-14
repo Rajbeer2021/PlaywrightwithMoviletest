@@ -5,4 +5,3 @@ browserstack-report/
 test-results/
 log/
 .env
-docs/

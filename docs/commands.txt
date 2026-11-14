@@ -1,120 +1,21 @@
-Correct execution commands
-What you want
+FINAL BROWSERSTACK SETUP
 
-Command
-userName: rajbeer_jXrhp5
+Important:
+- Keep only one BrowserStack YAML file.
+- Use one platform entry in browserstack.yml for the OS/browser you want to run.
+- Do not hardcode BrowserStack user credentials in repo files.
+- The BrowserStack SDK reads credentials from environment variables.
 
-accessKey: ZaAcVpPXVzwjqztBUdaQ
+PowerShell setup (local machine)
+$env:BROWSERSTACK_USERNAME="YOUR_BROWSERSTACK_USERNAME"
+$env:BROWSERSTACK_ACCESS_KEY="YOUR_BROWSERSTACK_ACCESS_KEY"
 
-Desktop Chrome
+Then run:
 
-npx playwright test --project="Desktop Chrome"
-
-SmallPhone screen emulation
-
-npx playwright test --project="SmallPhone Emulation"
-
-Pixel 7 emulation
-
-npx playwright test --project="Pixel 7 Emulation"
-
-npx playwright test tests/orangehrm.spec.js --headed --project="Pixel 7 Emulation"
-
-npx playwright test tests/orangehrm.spec.js --headed --project="Desktop Chrome"
-
-Actual SmallPhone Android Chrome
-
-
-only Desktop chrome -
-
-npx playwright test tests/orangehrm.spec.js -c playwright.config.js   
-
-only for android wev Chrome
-npx playwright test tests/orangehrm.spec.js -c playwright.android.config.js
-
-npx cross-env BROWSER_TARGET=desktop playwright test tests/orangehrm.spec.js -c playwright.config.js --project="Desktop Chrome"
-
-
-pixel 7 emulation only - 
-npx playwright test tests/orangehrm.spec.js -c playwright.config.js --project="Pixel 7 Emulation"
-
-npx cross-env BROWSER_TARGET=android playwright test tests/orangehrm.spec.js -c playwright.android.config.js
-
-
-VrowserStack -
-
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -c playwright.browserstack.config.js --project="windows-chrome"
-
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -c playwright.browserstack.config.js --project="android-chrome"
-
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -c playwright.browserstack.config.js
-
-
-
-------------
-Select the platform for each run
-
-Run only the platform you need:
-Target	Command
-Windows 11 Chrome	--project=windows-chrome
-Windows 10 Chrome	--project=windows10-chrome
-Windows 11 Edge	--project=windows-edge
-Windows 11 Firefox	--project=windows-firefox
-macOS WebKit	--project=macos-safari
-Samsung S25 Ultra	--project=samsung-s25-chrome
-Pixel 10	--project=pixel10-chrome
-Pixel 9	--project=pixel9-chrome
-
-
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --project=windows-chrome
-
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --project=samsung-s25-chrome
-
-
-
-------------
-
-First verify the selection without running tests
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome --list
-
-Windows 11 + Chrome only
-
-First verify the selection without running tests
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=windows-chrome
+# Default single target: Windows 11 + Chrome
 npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
 
-Windows 10 + Chrome only
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=windows10-chrome
-
-
-Windows 11 + Edge only
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=windows-edge
-
-
-Windows 11 + Firefox only
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=windows-firefox
-
-
-Samsung Android + Chrome only
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=samsung-s25-chrome
-
-
-Pixel 10 + Chrome only
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.config.js -- --project=pixel10-chrome
-
-
-Windows 11 Chrome + Edge together
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --config=playwright.browserstack.conf
-
-
-==================================================
-FINAL VERIFIED BROWSERSTACK COMMANDS
-==================================================
-
-# Default single target (Windows 11 + Chrome)
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-# Verify target selection without running tests
+# Verify selection without running tests
 npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome --list
 
 # Windows 10 + Chrome
@@ -138,17 +39,12 @@ npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=pl
 # Pixel 9 + Chrome
 npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=pixel9-chrome
 
-# Full BrowserStack matrix (all platforms)
-cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.full-matrix.yml BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js
-
-# Single-target npm script
+NPM scripts
 npm run test:bs:single
+npm run test:smoke
+npm run test:regression
 
-# Full-matrix npm script
-npm run test:bs:full-matrix
-
-# Quiet BrowserStack CLI version (single target)
-cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-# Quiet BrowserStack CLI version (full matrix)
-cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.full-matrix.yml BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js
+Troubleshooting
+- If the SDK returns ERROR_INVALID_CREDENTIALS, the BrowserStack username or access key is wrong, expired, or not loaded into the current shell/session.
+- If CLI bootstrap warns about sdk-assets.browserstack.com being blocked, that's a network/whitelist issue, but the actual rejection in this project is from invalid credentials.
+- Use a valid BrowserStack account username and access key from the BrowserStack dashboard, then rerun the command above.

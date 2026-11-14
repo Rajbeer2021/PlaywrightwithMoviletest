@@ -1,0 +1,53 @@
+OrangeHRM Playwright CI / BrowserStack plan
+
+Goal:
+- Run smoke tests on every push / PR on GitHub-hosted runner.
+- Run regression tests nightly on GitHub-hosted runner.
+- Allow on-demand BrowserStack regression and smoke runs from GitHub Actions.
+- Keep exactly one BrowserStack YAML file and one BrowserStack target at a time.
+
+Project rules:
+1. Use one BrowserStack config file: browserstack.yml.
+2. Keep only one platform entry in browserstack.yml for reliable single-target execution.
+3. The BrowserStack SDK expands every platform in the YAML, so multi-platform runs should not be used in the same file.
+4. Use Playwright tags for filtering: @smoke, @sanity, @regression.
+5. Use GitHub secrets for BrowserStack credentials.
+
+How the project should run:
+- Local / GitHub runner:
+  - Smoke: npm run test:smoke
+  - Regression: npm run test:regression
+- BrowserStack on demand:
+  - npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+Recommended workflow behavior:
+- Smoke workflow:
+  - Trigger on push to main and pull requests to main.
+  - Default: run on GitHub runner.
+  - Manual dispatch: allow choice to run on BrowserStack instead.
+
+- Regression workflow:
+  - Trigger nightly via cron.
+  - Default run on GitHub runner.
+  - Manual run: choose github or browserstack.
+  - If browserstack selected, choose a project such as windows-chrome, windows-edge, samsung-s25-chrome, pixel10-chrome.
+
+Why this is correct:
+- GitHub runner is best for fast default validation and PR gating.
+- BrowserStack is best for on-demand cross-platform validation without mixing all platforms in one YAML.
+- Single-target BrowserStack config avoids the 32 x 4 issue caused by multi-platform YAML expansion.
+
+Important:
+- Do not keep multiple BrowserStack YAML files in the repo for standard runs.
+- Keep browserstack.yml as the single source of truth.
+- If you want another platform, update the single target in browserstack.yml.
+
+Project commands:
+- npm run test:smoke
+- npm run test:regression
+- npm run test:bs:single
+- npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+Secrets to set in GitHub:
+- BROWSERSTACK_USERNAME
+- BROWSERSTACK_ACCESS_KEY
