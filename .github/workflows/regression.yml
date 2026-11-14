@@ -1,0 +1,54 @@
+
+name: OrangeHRM Nightly Regression
+
+on:
+
+  schedule:
+    # 19:30 UTC = 01:00 AM IST
+    - cron: '30 19 * * *'
+
+  workflow_dispatch:
+
+jobs:
+
+  regression:
+
+    name: BrowserStack Desktop Regression
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 120
+
+    env:
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+    steps:
+
+      - name: Checkout Latest Code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run BrowserStack Regression
+        run: |
+          npx browserstack-node-sdk npx playwright test --grep @regression
+
+      - name: Upload Regression Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browserstack-regression-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
