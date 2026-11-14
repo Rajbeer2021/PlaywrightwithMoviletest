@@ -11146,3 +11146,30 @@
 2026-11-15 01:56:01 - [31merror[39m: [BrowserstackCLI] CLI process exited with code null after ready — gRPC calls will fail
 2026-11-15 01:56:01 - [32minfo[39m: Visit https://automation.browserstack.com/builds/s99emtsjtymj4ts0wysclmvo7b86srspohrurawb to view build report, insights, and many more debugging information all at one place!
 
+2026-11-15 02:19:05 - [32minfo[39m: Reading configs from D:\PlaywrightwithMoviletest\browserstack.yml
+2026-11-15 02:19:05 - [32minfo[39m: Log Directory has been set to D:\PlaywrightwithMoviletest\log
+2026-11-15 02:19:25 - [32minfo[39m: stop: stopBinSession build_link=null hashed_id=null o11y_uuid=gb3v4lxjzei8evxhodohsylzeuyvmbgoma8uysuo
+2026-11-15 02:19:30 - [31merror[39m: [BrowserstackCLI] CLI process exited with code null after ready — gRPC calls will fail
+2026-11-15 02:19:30 - [32minfo[39m: Visit https://automation.browserstack.com/builds/gb3v4lxjzei8evxhodohsylzeuyvmbgoma8uysuo to view build report, insights, and many more debugging information all at one place!
+
+2026-11-15 02:21:59 - [32minfo[39m: Reading configs from D:\PlaywrightwithMoviletest\browserstack.yml
+2026-11-15 02:21:59 - [32minfo[39m: Log Directory has been set to D:\PlaywrightwithMoviletest\log
+2026-11-15 02:23:04 - [32minfo[39m: stop: stopBinSession build_link=https://automate.browserstack.com/dashboard/v2/builds/8277397ad0fd9224ba83c25c752f2b418876c72b hashed_id=8277397ad0fd9224ba83c25c752f2b418876c72b o11y_uuid=vptaedncbwf9orpqpkdo1ridwbobasplhbtz1owp
+2026-11-15 02:23:09 - [31merror[39m: [BrowserstackCLI] CLI process exited with code null after ready — gRPC calls will fail
+2026-11-15 02:23:09 - [32minfo[39m: Visit https://automation.browserstack.com/builds/vptaedncbwf9orpqpkdo1ridwbobasplhbtz1owp to view build report, insights, and many more debugging information all at one place!
+
+2026-11-15 02:23:10 - [32minfo[39m: View build on BrowserStack dashboard: https://automate.browserstack.com/dashboard/v2/builds/8277397ad0fd9224ba83c25c752f2b418876c72b
+2026-11-15 02:26:58 - [32minfo[39m: Reading configs from D:\PlaywrightwithMoviletest\browserstack.yml
+2026-11-15 02:26:58 - [32minfo[39m: Log Directory has been set to D:\PlaywrightwithMoviletest\log
+2026-11-15 02:29:29 - [32minfo[39m: stop: stopBinSession build_link=https://automate.browserstack.com/dashboard/v2/builds/74a496078ef0e568816f02dc667711332e518d5e hashed_id=74a496078ef0e568816f02dc667711332e518d5e o11y_uuid=uxxujsfmyrkr3ejc7zf8zb5lgajzzbrynvy9acta
+2026-11-15 02:29:34 - [31merror[39m: [BrowserstackCLI] CLI process exited with code null after ready — gRPC calls will fail
+2026-11-15 02:29:34 - [32minfo[39m: Visit https://automation.browserstack.com/builds/uxxujsfmyrkr3ejc7zf8zb5lgajzzbrynvy9acta to view build report, insights, and many more debugging information all at one place!
+
+2026-11-15 02:29:35 - [32minfo[39m: View build on BrowserStack dashboard: https://automate.browserstack.com/dashboard/v2/builds/74a496078ef0e568816f02dc667711332e518d5e
+2026-11-15 02:30:18 - [32minfo[39m: Reading configs from D:\PlaywrightwithMoviletest\browserstack.yml
+2026-11-15 02:30:18 - [32minfo[39m: Log Directory has been set to D:\PlaywrightwithMoviletest\log
+2026-11-15 02:31:06 - [32minfo[39m: stop: stopBinSession build_link=https://automate.browserstack.com/dashboard/v2/builds/0321d715fba720984f38e83fa5b9c7bbd4c54112 hashed_id=0321d715fba720984f38e83fa5b9c7bbd4c54112 o11y_uuid=q3v0muqzivarccdbyqzidsrmgyx8dpgb9qczt87j
+2026-11-15 02:31:11 - [31merror[39m: [BrowserstackCLI] CLI process exited with code null after ready — gRPC calls will fail
+2026-11-15 02:31:11 - [32minfo[39m: Visit https://automation.browserstack.com/builds/q3v0muqzivarccdbyqzidsrmgyx8dpgb9qczt87j to view build report, insights, and many more debugging information all at one place!
+
+2026-11-15 02:31:12 - [32minfo[39m: View build on BrowserStack dashboard: https://automate.browserstack.com/dashboard/v2/builds/0321d715fba720984f38e83fa5b9c7bbd4c54112

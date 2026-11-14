@@ -33,7 +33,7 @@ async function login(page) {
 }
 
 // TC01 - Verify Login Page
-test('TC01 - Verify login page', async ({ page }) => {
+test('TC01 - Verify login page @smoke @sanity @regression', async ({ page }) => {
   await page.goto('/web/index.php/auth/login');
 
   await expect(usernameInput(page)).toBeVisible();
@@ -42,7 +42,7 @@ test('TC01 - Verify login page', async ({ page }) => {
 });
 
 // TC02 - Login with Valid Credentials
-test('TC02 - Login with valid credentials', async ({ page }) => {
+test('TC02 - Login with valid credentials @smoke @sanity @regression', async ({ page }) => {
   await login(page);
 
   await expect(
@@ -51,7 +51,7 @@ test('TC02 - Login with valid credentials', async ({ page }) => {
 });
 
 // TC03 - Login with Invalid Credentials
-test('TC03 - Login with invalid credentials', async ({ page }) => {
+test('TC03 - Login with invalid credentials @smoke @sanity @regression', async ({ page }) => {
   await page.goto('/web/index.php/auth/login');
 
   await usernameInput(page).fill('Adminsss');
@@ -66,7 +66,7 @@ test('TC03 - Login with invalid credentials', async ({ page }) => {
 });
 
 // TC04 - Logout Successfully
-test('TC04 - Logout successfully', async ({ page }) => {
+test('TC04 - Logout successfully @sanity @regression', async ({ page }) => {
   await login(page);
 
   await page.locator('.oxd-userdropdown-tab').click();

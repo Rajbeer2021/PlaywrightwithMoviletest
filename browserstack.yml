@@ -1,15 +1,19 @@
 
-# Default BrowserStack config for a single target.
-# Use browserstack.full-matrix.yml when you intentionally want all configured OS/browser combinations.
-# Credentials: use environment variables; do not commit secrets
+# Single-target BrowserStack config.
+# This is the reliable setup for this project because the BrowserStack SDK expands every platform defined in the YAML.
+# If you need a different OS/browser, update this file before running the tests.
+# Credentials: use environment variables; do not commit secrets.
+# The real values must be set in GitHub repository secrets and injected at runtime.
 #userName: ${BROWSERSTACK_USERNAME}
 #accessKey: ${BROWSERSTACK_ACCESS_KEY}
 
-userName: rajbeer_jXrhp5
-accessKey: ZaAcVpPXVzwjqztBUdaQ
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+framework: playwright
 
 projectName: OrangeHRM Playwright Automation
-buildName: Single Target Run
+buildName: GitHub Actions BrowserStack Build
 buildIdentifier: '#${BUILD_NUMBER}'
 
 framework: playwright

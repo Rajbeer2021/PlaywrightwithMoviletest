@@ -1,31 +1,44 @@
 
-name: OrangeHRM Nightly Regression
+name: OrangeHRM Regression
 
 on:
-
   schedule:
     # 19:30 UTC = 01:00 AM IST
     - cron: '30 19 * * *'
 
   workflow_dispatch:
+    inputs:
+      run_target:
+        description: Choose where to run the regression suite
+        required: false
+        type: choice
+        default: github
+        options:
+          - github
+          - browserstack
+      browserstack_project:
+        description: BrowserStack target project for on-demand runs
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
 
 jobs:
-
   regression:
-
-    name: BrowserStack Desktop Regression
-
+    name: Regression Suite
     runs-on: ubuntu-latest
-
     timeout-minutes: 120
 
-    env:
-      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-
     steps:
-
-      - name: Checkout Latest Code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: main
@@ -36,18 +49,29 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run BrowserStack Regression
-        run: |
-          npx browserstack-node-sdk npx playwright test --grep @regression
+      - name: Install Playwright browser dependencies
+        run: npx playwright install --with-deps chromium
 
-      - name: Upload Regression Report
+      - name: Run regression tests on GitHub runner
+        if: ${{ github.event_name == 'schedule' || inputs.run_target == 'github' }}
+        run: npm run test:regression
+
+      - name: Run regression tests on BrowserStack
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_target == 'browserstack' }}
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: |
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+
+      - name: Upload regression reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: browserstack-regression-report
+          name: regression-report
           path: |
             playwright-report/
             test-results/
