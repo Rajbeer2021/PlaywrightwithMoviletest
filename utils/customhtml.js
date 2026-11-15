@@ -7,6 +7,9 @@ const testResultsDir = path.join(reportsRoot, 'test-results');
 const outputFile = path.join(reportsRoot, 'customreport.html');
 const indexFile = path.join(reportsRoot, 'index.html');
 
+fs.mkdirSync(reportsRoot, { recursive: true });
+fs.mkdirSync(testResultsDir, { recursive: true });
+
 function readJson(filePath) {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
