@@ -95,3 +95,9 @@ Troubleshooting
 - If BrowserStack returns ERROR_INVALID_CREDENTIALS, the username or access key is wrong, expired, or not loaded into the current PowerShell session.
 - If you want a different BrowserStack target, update the single platform entry in browserstack.yml and rerun.
 - Keep the reports in one folder: ./reports
+
+If you want, I can next give you the exact commands for:
+1. local smoke only,
+2. local regression only,
+3. BrowserStack single target only,
+4. GitHub Actions-ready commands with secrets.
