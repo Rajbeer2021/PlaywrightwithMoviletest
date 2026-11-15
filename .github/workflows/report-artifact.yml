@@ -36,14 +36,14 @@ jobs:
       - name: Create ZIP artifact
         run: |
           mkdir -p artifact
-          cp -r reports/* artifact/
-          zip -r playwright-report-dashboard.zip artifact
+          cp -R reports/. artifact/
+          zip -r playwright-report-dashboard-${{ github.run_id }}.zip artifact
 
       - name: Upload ZIP as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-dashboard
-          path: playwright-report-dashboard.zip
+          name: playwright-report-dashboard-${{ github.run_id }}
+          path: playwright-report-dashboard-${{ github.run_id }}.zip
           retention-days: 30
 
       - name: Add artifact link to job summary
@@ -51,5 +51,5 @@ jobs:
         run: |
           echo "## Playwright Report Artifact" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Artifact name: playwright-report-dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "Artifact name: playwright-report-dashboard-${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           echo "Download from the Artifacts section of this workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY

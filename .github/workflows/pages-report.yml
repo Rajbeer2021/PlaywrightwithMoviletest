@@ -50,11 +50,19 @@ jobs:
         if: success()
         uses: actions/configure-pages@v5
 
+      - name: Prepare unique Pages output for this run
+        if: success()
+        run: |
+          mkdir -p site/run-${{ github.run_id }}
+          cp -R reports/. site/run-${{ github.run_id }}/
+          cp -R reports/. site/
+          echo "Pages output prepared for run ${{ github.run_id }}"
+
       - name: Upload static site to Pages artifact
         if: success()
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./reports
+          path: ./site
 
       - name: Deploy to GitHub Pages
         if: success()
@@ -66,7 +74,9 @@ jobs:
         run: |
           echo "## Playwright Report Dashboard" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Open report: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Latest report: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Run-specific report: ${{ steps.deployment.outputs.page_url }}run-${{ github.run_id }}/" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Live GitHub Pages preview: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run-specific Pages folder: ${{ steps.deployment.outputs.page_url }}run-${{ github.run_id }}/" >> $GITHUB_STEP_SUMMARY
           echo "- Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
