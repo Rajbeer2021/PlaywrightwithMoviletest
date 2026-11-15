@@ -54,7 +54,7 @@ jobs:
           cp -R reports/. all-reports/smoke/
           (cd all-reports/smoke && zip -r ../smoke-report-${{ github.run_id }}.zip .)
 
-      - name: Upload smoke zip artifact
+      - name: Publish reports and upload zip
         uses: actions/upload-artifact@v4
         with:
           name: smoke-report-${{ github.run_id }}
@@ -69,7 +69,7 @@ jobs:
           cp -R reports/. all-reports/sanity/
           (cd all-reports/sanity && zip -r ../sanity-report-${{ github.run_id }}.zip .)
 
-      - name: Upload sanity zip artifact
+      - name: Publish reports and upload zip
         uses: actions/upload-artifact@v4
         with:
           name: sanity-report-${{ github.run_id }}
@@ -84,7 +84,7 @@ jobs:
           cp -R reports/. all-reports/regression/
           (cd all-reports/regression && zip -r ../regression-report-${{ github.run_id }}.zip .)
 
-      - name: Upload regression zip artifact
+      - name: Publish reports and upload zip
         uses: actions/upload-artifact@v4
         with:
           name: regression-report-${{ github.run_id }}
