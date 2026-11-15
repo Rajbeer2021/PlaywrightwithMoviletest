@@ -1,0 +1,193 @@
+name: Publish All Workflow Reports
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publish-all-reports
+  cancel-in-progress: true
+
+jobs:
+  publish-all-reports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    environment:
+      name: github-pages
+      url: ${{ steps.pages-deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke workflow report
+        run: |
+          npm run test:smoke
+          npm run report:custom
+          mkdir -p all-reports/smoke
+          cp -R reports/. all-reports/smoke/
+          (cd all-reports/smoke && zip -r ../smoke-report-${{ github.run_id }}.zip .)
+
+      - name: Upload smoke zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report-${{ github.run_id }}
+          path: all-reports/smoke-report-${{ github.run_id }}.zip
+          retention-days: 30
+
+      - name: Sanity workflow report
+        run: |
+          npm run test:sanity
+          npm run report:custom
+          mkdir -p all-reports/sanity
+          cp -R reports/. all-reports/sanity/
+          (cd all-reports/sanity && zip -r ../sanity-report-${{ github.run_id }}.zip .)
+
+      - name: Upload sanity zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanity-report-${{ github.run_id }}
+          path: all-reports/sanity-report-${{ github.run_id }}.zip
+          retention-days: 30
+
+      - name: Regression workflow report
+        run: |
+          npm run test:regression
+          npm run report:custom
+          mkdir -p all-reports/regression
+          cp -R reports/. all-reports/regression/
+          (cd all-reports/regression && zip -r ../regression-report-${{ github.run_id }}.zip .)
+
+      - name: Upload regression zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report-${{ github.run_id }}
+          path: all-reports/regression-report-${{ github.run_id }}.zip
+          retention-days: 30
+
+      - name: Prepare final Pages site
+        run: |
+          mkdir -p site
+          cp -R all-reports/smoke/. site/smoke/
+          cp -R all-reports/sanity/. site/sanity/
+          cp -R all-reports/regression/. site/regression/
+
+          cat > site/index.html <<HTML
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Workflow Playwright Reports</title>
+            <style>
+              body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background: #0d1520;
+                color: #edf6ff;
+              }
+              .wrap {
+                max-width: 980px;
+                margin: 40px auto;
+                padding: 24px;
+              }
+              .card {
+                background: #101e2f;
+                border: 1px solid rgba(255,255,255,0.09);
+                border-radius: 16px;
+                padding: 24px;
+                margin-bottom: 18px;
+              }
+              h1 {
+                font-size: 32px;
+                margin-top: 0;
+              }
+              a {
+                color: #60baff;
+                text-decoration: none;
+                font-weight: 600;
+              }
+              a:hover { text-decoration: underline; }
+              .grid {
+                display: grid;
+                gap: 16px;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                margin-top: 18px;
+              }
+              .tile {
+                background: #13263e;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: 18px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="wrap">
+              <div class="card">
+                <h1>Playwright Workflow Reports</h1>
+                <p>All generated workflow reports are listed below.</p>
+                <div class="grid">
+                  <div class="tile">
+                    <h3>Smoke</h3>
+                    <a href="smoke/index.html">Open Smoke Report</a>
+                  </div>
+                  <div class="tile">
+                    <h3>Sanity</h3>
+                    <a href="sanity/index.html">Open Sanity Report</a>
+                  </div>
+                  <div class="tile">
+                    <h3>Regression</h3>
+                    <a href="regression/index.html">Open Regression Report</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </body>
+          </html>
+          HTML
+
+          echo "Prepared all workflow reports for Pages publishing"
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site to Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: pages-deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Add report links to job summary
+        if: success()
+        run: |
+          echo "## All Workflow Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Live Pages index: ${{ steps.pages-deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Smoke report: ${{ steps.pages-deploy.outputs.page_url }}smoke/" >> $GITHUB_STEP_SUMMARY
+          echo "- Sanity report: ${{ steps.pages-deploy.outputs.page_url }}sanity/" >> $GITHUB_STEP_SUMMARY
+          echo "- Regression report: ${{ steps.pages-deploy.outputs.page_url }}regression/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
