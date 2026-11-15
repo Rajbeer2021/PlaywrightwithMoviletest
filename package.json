@@ -14,7 +14,8 @@
     "test:bs:single": "cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_DIR=./reports/log BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome",
     "test:bs:smoke": "cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_DIR=./reports/log BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @smoke -- --config=playwright.browserstack.config.js --project=windows-chrome",
     "test:bs:sanity": "cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_DIR=./reports/log BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=windows-chrome",
-    "test:bs:regression": "cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_DIR=./reports/log BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @regression -- --config=playwright.browserstack.config.js --project=windows-chrome"
+    "test:bs:regression": "cross-env BROWSERSTACK_CONFIG_FILE_PATH=./browserstack.yml BROWSERSTACK_LOG_DIR=./reports/log BROWSERSTACK_LOG_LEVEL=error browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @regression -- --config=playwright.browserstack.config.js --project=windows-chrome",
+    "report:custom": "node utils/customhtml.js"
   },
   "dependencies": {
     "playwright": "^1.65.1"
