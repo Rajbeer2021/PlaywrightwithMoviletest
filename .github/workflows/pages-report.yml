@@ -60,3 +60,12 @@ jobs:
         if: success()
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Add report link to job summary
+        if: success()
+        run: |
+          echo "## Playwright Report Dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Open report: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Live GitHub Pages preview: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
