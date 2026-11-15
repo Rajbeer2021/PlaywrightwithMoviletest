@@ -1,0 +1,75 @@
+
+name: OrangeHRM Smoke Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_on_browserstack:
+        description: Run smoke tests on BrowserStack instead of GitHub runner
+        required: false
+        type: boolean
+        default: false
+      browserstack_project:
+        description: BrowserStack target project
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
+
+jobs:
+  smoke:
+    name: Smoke Execution
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests on GitHub runner
+        if: ${{ !inputs.run_on_browserstack }}
+        run: npm run test:smoke
+
+      - name: Run smoke tests on BrowserStack
+        if: ${{ inputs.run_on_browserstack }}
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack.yml
+          BROWSERSTACK_LOG_DIR: ./reports/log
+          BROWSERSTACK_LOG_LEVEL: error
+        run: |
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+
+      - name: Generate custom HTML report
+        if: always()
+        run: npm run report:custom
+
+      - name: Publish reports and upload zip
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-report-${{ github.run_id }}
+          path: |
+            reports/
+          retention-days: 15
