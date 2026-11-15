@@ -2,6 +2,9 @@
 name: OrangeHRM Smoke Tests
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       github_browser:
@@ -19,6 +22,9 @@ jobs:
     name: Smoke Execution
     runs-on: ubuntu-latest
     timeout-minutes: 45
+
+    env:
+      RUNNER_BROWSER: ${{ github.event_name == 'workflow_dispatch' && inputs.github_browser || 'windows-chrome' }}
 
     steps:
       - name: Checkout code
@@ -38,7 +44,7 @@ jobs:
 
       - name: Run smoke tests on GitHub runner
         run: |
-          echo "Running GitHub smoke tests on ${{ inputs.github_browser }}"
+          echo "Running GitHub smoke tests on $RUNNER_BROWSER"
           npm run test:smoke
 
       - name: Generate custom HTML report
