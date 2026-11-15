@@ -9,6 +9,29 @@ on:
         required: false
         type: boolean
         default: false
+      github_browser:
+        description: GitHub runner browser for smoke tests (default browser options only)
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows-edge
+          - windows-firefox
+      browserstack_project:
+        description: BrowserStack target project when using BrowserStack
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
 
 jobs:
   smoke:
@@ -34,7 +57,9 @@ jobs:
 
       - name: Run smoke tests on GitHub runner
         if: ${{ !inputs.run_on_browserstack }}
-        run: npm run test:smoke
+        run: |
+          echo "Running GitHub smoke tests on ${{ inputs.github_browser }}"
+          npm run test:smoke
 
       - name: Run smoke tests on BrowserStack
         if: ${{ inputs.run_on_browserstack }}
@@ -45,7 +70,8 @@ jobs:
           BROWSERSTACK_LOG_DIR: ./reports/log
           BROWSERSTACK_LOG_LEVEL: error
         run: |
-          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+          echo "Running BrowserStack smoke tests on ${{ inputs.browserstack_project }}"
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
 
       - name: Generate custom HTML report
         if: always()

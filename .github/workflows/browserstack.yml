@@ -7,14 +7,16 @@ on:
         description: BrowserStack target project for on-demand runs
         required: false
         type: choice
-        default: samsung-s24-chrome
+        default: windows-chrome
         options:
           - windows-chrome
           - windows10-chrome
           - windows-edge
+          - windows-firefox
+          - macos-safari
           - samsung-s25-chrome
-          - samsung-s24-chrome
           - pixel10-chrome
+          - pixel9-chrome
 
 jobs:
   browserstack-tests:

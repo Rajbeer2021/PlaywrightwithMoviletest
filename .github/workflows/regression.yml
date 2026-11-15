@@ -12,6 +12,29 @@ on:
         options:
           - github
           - browserstack
+      github_browser:
+        description: GitHub runner browser for regression tests
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows-edge
+          - windows-firefox
+      browserstack_project:
+        description: BrowserStack target project when BrowserStack is selected
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
 
 jobs:
   regression:
@@ -39,7 +62,9 @@ jobs:
 
       - name: Run regression tests on GitHub runner
         if: ${{ inputs.run_target == 'github' }}
-        run: npm run test:regression
+        run: |
+          echo "Running GitHub regression tests on ${{ inputs.github_browser }}"
+          npm run test:regression
 
       - name: Run regression tests on BrowserStack
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_target == 'browserstack' }}
@@ -50,7 +75,8 @@ jobs:
           BROWSERSTACK_LOG_DIR: ./reports/log
           BROWSERSTACK_LOG_LEVEL: error
         run: |
-          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+          echo "Running BrowserStack regression tests on ${{ inputs.browserstack_project }}"
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
 
       - name: Generate custom HTML report
         if: always()

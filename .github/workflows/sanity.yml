@@ -8,6 +8,29 @@ on:
         required: false
         type: boolean
         default: false
+      github_browser:
+        description: GitHub runner browser for sanity tests (default browser options only)
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows-edge
+          - windows-firefox
+      browserstack_project:
+        description: BrowserStack target project when using BrowserStack
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
 
 jobs:
   sanity:
@@ -33,7 +56,9 @@ jobs:
 
       - name: Run sanity tests on GitHub runner
         if: ${{ !inputs.run_on_browserstack }}
-        run: npm run test:sanity
+        run: |
+          echo "Running GitHub sanity tests on ${{ inputs.github_browser }}"
+          npm run test:sanity
 
       - name: Run sanity tests on BrowserStack
         if: ${{ inputs.run_on_browserstack }}
@@ -44,7 +69,8 @@ jobs:
           BROWSERSTACK_LOG_DIR: ./reports/log
           BROWSERSTACK_LOG_LEVEL: error
         run: |
-          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=windows-chrome
+          echo "Running BrowserStack sanity tests on ${{ inputs.browserstack_project }}"
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
 
       - name: Generate custom HTML report
         if: always()

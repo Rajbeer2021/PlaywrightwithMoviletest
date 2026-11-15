@@ -23,6 +23,31 @@ on:
           - github
           - browserstack
 
+      github_browser:
+        description: Browser choice for GitHub runner execution
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows-edge
+          - windows-firefox
+
+      browserstack_project:
+        description: BrowserStack OS/browser target when using BrowserStack
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
+
 jobs:
   common-run:
     name: Common Suite Runner
@@ -56,7 +81,8 @@ jobs:
         run: |
           echo "Test Type: ${{ inputs.test_type }}"
           echo "Execution Target: ${{ inputs.execution_target }}"
-          echo "BrowserStack Project: windows-chrome"
+          echo "GitHub Browser: ${{ inputs.github_browser }}"
+          echo "BrowserStack Project: ${{ inputs.browserstack_project }}"
 
       - name: Run selected tests on GitHub runner
         if: ${{ inputs.execution_target == 'github' }}
@@ -87,16 +113,16 @@ jobs:
         run: |
           case "${{ inputs.test_type }}" in
             smoke)
-              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @smoke -- --config=playwright.browserstack.config.js --project=windows-chrome
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @smoke -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
               ;;
             sanity)
-              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=windows-chrome
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
               ;;
             regression)
-              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @regression -- --config=playwright.browserstack.config.js --project=windows-chrome
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @regression -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
               ;;
             browserstack)
-              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
               ;;
             *)
               echo "Invalid test type selected: ${{ inputs.test_type }}"
