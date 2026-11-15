@@ -3,13 +3,16 @@ name: OrangeHRM Sanity Tests
 on:
   workflow_dispatch:
     inputs:
-      run_on_browserstack:
-        description: Run sanity tests on BrowserStack instead of GitHub runner
+      run_target:
+        description: Choose where to run the sanity suite
         required: false
-        type: boolean
-        default: false
+        type: choice
+        default: github
+        options:
+          - github
+          - browserstack
       github_browser:
-        description: GitHub runner browser for sanity tests (default browser options only)
+        description: GitHub runner browser for sanity tests
         required: false
         type: choice
         default: windows-chrome
@@ -18,7 +21,7 @@ on:
           - windows-edge
           - windows-firefox
       browserstack_project:
-        description: BrowserStack target project when using BrowserStack
+        description: BrowserStack target project when BrowserStack is selected
         required: false
         type: choice
         default: windows-chrome
@@ -55,13 +58,13 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run sanity tests on GitHub runner
-        if: ${{ !inputs.run_on_browserstack }}
+        if: ${{ inputs.run_target == 'github' }}
         run: |
           echo "Running GitHub sanity tests on ${{ inputs.github_browser }}"
           npm run test:sanity
 
       - name: Run sanity tests on BrowserStack
-        if: ${{ inputs.run_on_browserstack }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_target == 'browserstack' }}
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
