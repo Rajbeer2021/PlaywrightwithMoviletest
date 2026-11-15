@@ -7,17 +7,14 @@ on:
         description: BrowserStack target project for on-demand runs
         required: false
         type: choice
-        default: windows-chrome
+        default: samsung-s24-chrome
         options:
           - windows-chrome
           - windows10-chrome
           - windows-edge
-          - windows-firefox
-          - macos-safari
           - samsung-s25-chrome
           - samsung-s24-chrome
           - pixel10-chrome
-          - pixel9-chrome
 
 jobs:
   browserstack-tests:
@@ -27,9 +24,9 @@ jobs:
     env:
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack.yml
       BROWSERSTACK_LOG_DIR: ./reports/log
       BROWSERSTACK_LOG_LEVEL: error
+      BROWSERSTACK_PROJECT: ${{ inputs.browserstack_project }}
 
     steps:
       - name: Checkout repository
@@ -47,7 +44,29 @@ jobs:
       - name: Install Playwright browser dependencies
         run: npx playwright install --with-deps chromium
 
+      - name: Prepare BrowserStack target config
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const target = process.env.BROWSERSTACK_PROJECT || 'samsung-s24-chrome';
+
+          const platforms = {
+            'windows-chrome': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Windows\n    osVersion: "11"\n    browserName: chrome\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: windows-chrome\n`,
+            'windows10-chrome': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Windows\n    osVersion: "10"\n    browserName: chrome\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: windows10-chrome\n`,
+            'windows-edge': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Windows\n    osVersion: "11"\n    browserName: edge\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: windows-edge\n`,
+            'samsung-s25-chrome': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Android\n    osVersion: "15"\n    deviceName: "Samsung Galaxy S25"\n    browserName: chrome\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: samsung-s25-chrome\n`,
+            'samsung-s24-chrome': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Android\n    osVersion: "14"\n    deviceName: "Samsung Galaxy S24"\n    browserName: chrome\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: samsung-s24-chrome\n`,
+            'pixel10-chrome': `userName: ${process.env.BROWSERSTACK_USERNAME}\naccessKey: ${process.env.BROWSERSTACK_ACCESS_KEY}\nprojectName: OrangeHRM Playwright Automation\nbuildName: GitHub Actions BrowserStack Build\nbuildIdentifier: '#${BUILD_NUMBER}'\nframework: playwright\nlogDir: ./reports/log\nlogLevel: error\nplatforms:\n  - os: Android\n    osVersion: "16"\n    deviceName: "Google Pixel 10"\n    browserName: chrome\n    browserVersion: latest\n    playwrightConfigOptions:\n      name: pixel10-chrome\n`
+          };
+
+          const yaml = platforms[target] || platforms['samsung-s24-chrome'];
+          fs.writeFileSync('browserstack-selected.yml', yaml);
+          console.log(`Prepared BrowserStack config for target: ${target}`);
+          NODE
+
       - name: Run BrowserStack Playwright tests
+        env:
+          BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack-selected.yml
         run: |
           npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js
 

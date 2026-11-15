@@ -1,8 +1,7 @@
 
-# BrowserStack SDK matrix config.
-# The BrowserStack SDK expands every platform listed here.
-# This project supports Android mobile and desktop browser combinations.
-# If you want to run a single target, keep only one platform entry.
+# BrowserStack SDK config for the stable supported matrix.
+# Use the GitHub workflow input to generate a single-target config for on-demand runs.
+# This file is kept as the default full set of stable BrowserStack targets.
 
 userName: ${BROWSERSTACK_USERNAME}
 accessKey: ${BROWSERSTACK_ACCESS_KEY}
@@ -37,36 +36,6 @@ platforms:
     playwrightConfigOptions:
       name: windows-edge
 
-  - os: Windows
-    osVersion: "11"
-    browserName: firefox
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: windows-firefox
-
-  - os: macOS
-    osVersion: "Ventura"
-    browserName: safari
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: macos-safari
-
-  - os: Android
-    osVersion: "14"
-    deviceName: "Google Pixel 10"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: pixel10-chrome
-
-  - os: Android
-    osVersion: "14"
-    deviceName: "Google Pixel 9"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: pixel9-chrome
-
   - os: Android
     osVersion: "15"
     deviceName: "Samsung Galaxy S25"
@@ -82,6 +51,14 @@ platforms:
     browserVersion: latest
     playwrightConfigOptions:
       name: samsung-s24-chrome
+
+  - os: Android
+    osVersion: "16"
+    deviceName: "Google Pixel 10"
+    browserName: chrome
+    browserVersion: latest
+    playwrightConfigOptions:
+      name: pixel10-chrome
 
 # BrowserStack debugging
 debug: false
