@@ -50,11 +50,15 @@ jobs:
         run: |
           npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
 
+      - name: Generate custom HTML report
+        if: always()
+        run: npm run report:custom
+
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: browserstack-report
+          name: browserstack-report-${{ github.run_id }}
           path: |
             reports/
           retention-days: 15
