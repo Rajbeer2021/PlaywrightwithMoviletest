@@ -12,20 +12,6 @@ on:
         options:
           - github
           - browserstack
-      browserstack_project:
-        description: BrowserStack target project for on-demand runs
-        required: false
-        type: choice
-        default: windows-chrome
-        options:
-          - windows-chrome
-          - windows10-chrome
-          - windows-edge
-          - windows-firefox
-          - macos-safari
-          - samsung-s25-chrome
-          - pixel10-chrome
-          - pixel9-chrome
 
 jobs:
   regression:
@@ -64,7 +50,7 @@ jobs:
           BROWSERSTACK_LOG_DIR: ./reports/log
           BROWSERSTACK_LOG_LEVEL: error
         run: |
-          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
 
       - name: Generate custom HTML report
         if: always()
