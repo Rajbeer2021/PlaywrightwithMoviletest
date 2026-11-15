@@ -1,0 +1,129 @@
+name: OrangeHRM Common Execution
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: Select the test type to run
+        required: true
+        type: choice
+        default: smoke
+        options:
+          - smoke
+          - sanity
+          - regression
+          - browserstack
+
+      execution_target:
+        description: Select where to run the tests
+        required: true
+        type: choice
+        default: github
+        options:
+          - github
+          - browserstack
+
+      browserstack_project:
+        description: BrowserStack OS/browser target when using BrowserStack
+        required: false
+        type: choice
+        default: windows-chrome
+        options:
+          - windows-chrome
+          - windows10-chrome
+          - windows-edge
+          - windows-firefox
+          - macos-safari
+          - samsung-s25-chrome
+          - pixel10-chrome
+          - pixel9-chrome
+
+jobs:
+  common-run:
+    name: Common Suite Runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    env:
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack.yml
+      BROWSERSTACK_LOG_DIR: ./reports/log
+      BROWSERSTACK_LOG_LEVEL: error
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Show selected execution details
+        run: |
+          echo "Test Type: ${{ inputs.test_type }}"
+          echo "Execution Target: ${{ inputs.execution_target }}"
+          echo "BrowserStack Project: ${{ inputs.browserstack_project }}"
+
+      - name: Run selected tests on GitHub runner
+        if: ${{ inputs.execution_target == 'github' }}
+        shell: bash
+        run: |
+          case "${{ inputs.test_type }}" in
+            smoke)
+              npm run test:smoke
+              ;;
+            sanity)
+              npm run test:sanity
+              ;;
+            regression)
+              npm run test:regression
+              ;;
+            browserstack)
+              npm run test:all
+              ;;
+            *)
+              echo "Invalid test type selected: ${{ inputs.test_type }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Run selected tests on BrowserStack
+        if: ${{ inputs.execution_target == 'browserstack' }}
+        shell: bash
+        run: |
+          case "${{ inputs.test_type }}" in
+            smoke)
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @smoke -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+              ;;
+            sanity)
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @sanity -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+              ;;
+            regression)
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep @regression -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+              ;;
+            browserstack)
+              npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
+              ;;
+            *)
+              echo "Invalid test type selected: ${{ inputs.test_type }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: common-workflow-reports
+          path: |
+            reports/
+          retention-days: 15
