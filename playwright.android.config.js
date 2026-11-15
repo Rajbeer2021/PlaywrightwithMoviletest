@@ -5,18 +5,17 @@ module.exports = defineConfig({
   testDir: './tests',
   timeout: 60000,
   retries: 0,
-  reporter: 'html',
+  outputDir: './reports/test-results',
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: './reports/playwright-report', open: 'never' }],
+  ],
 
   use: {
     baseURL: 'https://opensource-demo.orangehrmlive.com',
+    browserName: 'chromium',
+    channel: 'chrome',
     screenshot: 'on',
     trace: 'retain-on-failure',
   },
-
-  projects: [
-    {
-      name: 'Android Chrome',
-      testMatch: '**/orangehrm.spec.js',
-    },
-  ],
 });

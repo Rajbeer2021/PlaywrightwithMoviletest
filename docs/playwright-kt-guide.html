@@ -400,6 +400,38 @@ switch (target) {
     <section>
       <div class="section-title">
         <span class="step-no">6</span>
+        <h2>Single-Target BrowserStack Runner (Local PowerShell)</h2>
+      </div>
+      <div class="card">
+        <p>
+          The project now includes a local PowerShell wrapper, <code>run-local-browserstack.ps1</code>, which reads the current BrowserStack credentials from <code>browserstack.yml</code>, rewrites the YAML for a single selected target, and runs only that OS/browser combination. This avoids accidental full-matrix execution while still validating BrowserStack behavior from the local machine.
+        </p>
+        <pre><code># Windows 11 - Chrome
+.\run-local-browserstack.ps1 -Suite smoke -Target windows11-chrome
+
+# Windows 11 - Edge
+.\run-local-browserstack.ps1 -Suite sanity -Target windows11-edge
+
+# Android 15 - Samsung Galaxy S25 Chrome
+.\run-local-browserstack.ps1 -Suite regression -Target samsung-s25-chrome
+
+# macOS 14 - Safari
+.\run-local-browserstack.ps1 -Suite smoke -Target macos-14-safari
+
+# Full matrix (only if intentionally needed)
+.\run-local-browserstack.ps1 -Suite all -FullMatrix</code></pre>
+        <p class="muted">
+          Supported local target names include: <code>windows11-chrome</code>, <code>windows10-chrome</code>, <code>windows11-edge</code>, <code>windows11-firefox</code>, <code>macos-14-safari</code>, <code>samsung-s25-chrome</code>, <code>samsung-s24-chrome</code>, and <code>pixel10-chrome</code>.
+        </p>
+        <div class="note">
+          <strong>Important:</strong> only one target is selected per run. This keeps BrowserStack execution focused, stable, and aligned with the platform currently configured in the project file.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">7</span>
         <h2>Recommended Patterns</h2>
       </div>
       <div class="card">
@@ -408,13 +440,14 @@ switch (target) {
           <li>Keep browser setup and environment selection in the root <code>fixtures/</code> layer.</li>
           <li>Use test tags such as <code>@smoke</code>, <code>@sanity</code>, and <code>@regression</code> for CI targeting.</li>
           <li>Keep results and screenshots under a single <code>reports/</code> directory.</li>
+          <li>Use the local BrowserStack PowerShell runner when validating one specific OS/browser target from the local machine.</li>
           <li>Use GitHub Pages for online preview and artifact ZIP for downloadable delivery.</li>
         </ul>
       </div>
     </section>
 
     <div class="note">
-      <strong>Summary:</strong> the framework is now aligned to a proven automation model: centralized fixtures, page object structure, cloud compatibility, clean CI orchestration, and a professional dashboard that is publishable online after successful execution.
+      <strong>Summary:</strong> the framework is now aligned to a proven automation model: centralized fixtures, page object structure, cloud compatibility, local BrowserStack targeting, clean CI orchestration, and a professional dashboard that is publishable online after successful execution.
     </div>
   </div>
 </body>

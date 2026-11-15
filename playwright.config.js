@@ -8,8 +8,11 @@ module.exports = defineConfig({
   testDir: './tests',
   timeout: 60000,
   retries: 0,
-  outputDir: 'reports/test-results',
-  reporter: [['html', { outputFolder: 'reports/playwright-report', open: 'never' }]],
+  outputDir: './reports/test-results',
+  reporter: [
+    ['list'],
+    ['html', { outputFolder: './reports/playwright-report', open: 'never' }],
+  ],
 
   use: {
     baseURL: 'https://opensource-demo.orangehrmlive.com',
@@ -31,10 +34,4 @@ module.exports = defineConfig({
     screenshot: 'on',
     trace: 'retain-on-failure',
   },
-
-  projects: [
-    {
-      name: 'Desktop Chrome',
-    },
-  ],
 });

@@ -1,41 +1,12 @@
-
-# BrowserStack SDK config for the stable supported matrix.
-# Use the GitHub workflow input to generate a single-target config for on-demand runs.
-# This file is kept as the default full set of stable BrowserStack targets.
-
-userName: ${BROWSERSTACK_USERNAME}
-accessKey: ${BROWSERSTACK_ACCESS_KEY}
-
+userName: rajbeer_jXrhp5
+accessKey: ZaAcVpPXVzwjqztBUdaQ
 projectName: OrangeHRM Playwright Automation
 buildName: GitHub Actions BrowserStack Build
-buildIdentifier: '#${BUILD_NUMBER}'
-
+buildIdentifier: '#local'
 framework: playwright
 logDir: ./reports/log
 logLevel: error
-
 platforms:
-  - os: Windows
-    osVersion: "11"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: windows-chrome
-
-  - os: Windows
-    osVersion: "10"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: windows10-chrome
-
-  - os: Windows
-    osVersion: "11"
-    browserName: edge
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: windows-edge
-
   - os: Android
     osVersion: "15"
     deviceName: "Samsung Galaxy S25"
@@ -43,25 +14,3 @@ platforms:
     browserVersion: latest
     playwrightConfigOptions:
       name: samsung-s25-chrome
-
-  - os: Android
-    osVersion: "14"
-    deviceName: "Samsung Galaxy S24"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: samsung-s24-chrome
-
-  - os: Android
-    osVersion: "16"
-    deviceName: "Google Pixel 10"
-    browserName: chrome
-    browserVersion: latest
-    playwrightConfigOptions:
-      name: pixel10-chrome
-
-# BrowserStack debugging
-debug: false
-networkLogs: false
-video: true
-consoleLogs: info
