@@ -112,6 +112,7 @@
     .badge.local { background: rgba(126,231,135,0.14); color: var(--accent); }
     .badge.android { background: rgba(88,166,255,0.12); color: var(--primary); }
     .badge.browserstack { background: rgba(249,215,110,0.12); color: var(--warning); }
+    .badge.pages { background: rgba(126,231,135,0.12); color: #a5f3fc; }
 
     section {
       margin-top: 40px;
@@ -237,27 +238,187 @@
       <div class="eyebrow">Playwright KT Guide</div>
       <h1>OrangeHRM Automation Framework</h1>
       <p class="lead">
-        This framework is designed to run the same Playwright test suite across local desktop browsers,
-        Android emulator-based browser execution, and BrowserStack cloud runs for any supported OS/browser combination.
+        This framework follows a scalable Playwright test architecture using project-root fixtures, a page object model, GitHub Actions execution, BrowserStack cloud runs, and a central reports layer for dashboards and artifacts.
       </p>
     </header>
 
     <section>
       <div class="section-title">
         <span class="step-no">1</span>
-        <h2>Framework Architecture</h2>
+        <h2>Current Framework Architecture</h2>
       </div>
       <div class="grid">
         <div class="card">
-          <span class="badge local">Local Desktop</span>
-          <h3>Execution Model</h3>
+          <span class="badge local">Local</span>
+          <h3>Project Structure</h3>
           <p>
-            Runs on a local machine using the main Playwright configuration and Chrome/Chromium browser.
-            Best for developer validation, smoke and regression checks, and local debugging.
+            The framework has a clean root-level separation between test logic, reusable fixtures, page objects, and reports.
+          </p>
+          <ul>
+            <li>tests/ contains test suites</li>
+            <li>fixtures/ contains shared Playwright setup</li>
+            <li>pages/ contains page-specific selectors and actions</li>
+            <li>reports/ stores HTML dashboards, screenshots, results, logs</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <span class="badge browserstack">Cloud</span>
+          <h3>Execution Modes</h3>
+          <p>
+            The same test suite runs on local browsers, BrowserStack hosted devices, and GitHub Actions runners for CI checks.
           </p>
           <div class="stack">
-            <span class="tag">Playwright</span>
-            <span class="tag">Chromium</span>
+            <span class="tag">Desktop Chrome</span>
+            <span class="tag">Windows / Mac</span>
+            <span class="tag">BrowserStack</span>
+            <span class="tag">GitHub Actions</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="badge pages">Reports</span>
+          <h3>Reporting</h3>
+          <p>
+            Every run outputs a central report structure with screenshots, JSON, HTML dashboard, and an optional GitHub Pages deployment.
+          </p>
+          <div class="stack">
+            <span class="tag">customreport.html</span>
+            <span class="tag">index.html</span>
+            <span class="tag">ZIP artifact</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">2</span>
+        <h2>Page Object Model (POM)</h2>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Why it matters</h3>
+          <p>
+            Instead of writing selectors in each test, locators are centralized inside page classes. This makes the framework scalable, readable, and easier to maintain.
+          </p>
+          <ul>
+            <li>One locator change updates all related tests</li>
+            <li>Test cases become scenario-focused</li>
+            <li>Better collaboration and reuse across suites</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Example structure</h3>
+          <pre><code>pages/
+  LoginPage.js
+  DashboardPage.js
+
+fixtures/
+  test.js
+
+tests/
+  orangehrm.spec.js
+  hrmtest2.spec.js</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">3</span>
+        <h2>Fixture Layer and Reusability</h2>
+      </div>
+      <div class="card">
+        <p>
+          The root-level fixture file is the single source for Playwright setup. It chooses the environment target and exposes the shared <code>test</code> and <code>expect</code> objects for all test files. This keeps configuration logic centralized instead of copied repeatedly.
+        </p>
+        <pre><code>const target = (process.env.BROWSER_TARGET || 'desktop').toLowerCase();
+
+switch (target) {
+  case 'desktop':
+    ({ test, expect } = require('@playwright/test'));
+    break;
+  case 'android':
+    ({ test, expect } = require('./android-test'));
+    break;
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">4</span>
+        <h2>Current Flow in Practice</h2>
+      </div>
+      <div class="card">
+        <ol>
+          <li>Developer writes a test using page objects.</li>
+          <li>Fixture file gives browser and environment setup.</li>
+          <li>Playwright executes the suite locally or in CI.</li>
+          <li>Results go to the central <code>reports/</code> folder.</li>
+          <li>A custom HTML dashboard is generated and optionally published to GitHub Pages.</li>
+          <li>Workflow artifacts are uploaded and accessible from GitHub Actions.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">5</span>
+        <h2>Advantages of the Current Implementation</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Maintainability</h3>
+          <p>Selectors are stored in page objects rather than spread across tests, making updates faster and less risky.</p>
+        </div>
+        <div class="card">
+          <h3>Scalability</h3>
+          <p>More pages and suites can be added without rewriting the same UI locator logic.</p>
+        </div>
+        <div class="card">
+          <h3>CI Reliability</h3>
+          <p>GitHub Actions workflows run only the relevant suites and publish dashboards after successful execution.</p>
+        </div>
+        <div class="card">
+          <h3>Cloud Capability</h3>
+          <p>BrowserStack integration is kept narrow and intentional, avoiding unnecessary OS/browser matrix noise.</p>
+        </div>
+        <div class="card">
+          <h3>Better Reporting</h3>
+          <p>The same report is usable for local execution, CI dashboard review, and cloud test visibility.</p>
+        </div>
+        <div class="card">
+          <h3>Clean Team Workflow</h3>
+          <p>Developers can run local checks, CI can publish the report on success, and the team can download ZIP artifacts when needed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="step-no">6</span>
+        <h2>Recommended Patterns</h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li>Keep all locators inside page classes under the root <code>pages/</code> folder.</li>
+          <li>Keep browser setup and environment selection in the root <code>fixtures/</code> layer.</li>
+          <li>Use test tags such as <code>@smoke</code>, <code>@sanity</code>, and <code>@regression</code> for CI targeting.</li>
+          <li>Keep results and screenshots under a single <code>reports/</code> directory.</li>
+          <li>Use GitHub Pages for online preview and artifact ZIP for downloadable delivery.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="note">
+      <strong>Summary:</strong> the framework is now aligned to a proven automation model: centralized fixtures, page object structure, cloud compatibility, clean CI orchestration, and a professional dashboard that is publishable online after successful execution.
+    </div>
+  </div>
+</body>
+</html>
             <span class="tag">Chrome</span>
             <span class="tag">Headless / Headed</span>
           </div>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playwright CI/CD + BrowserStack Flow</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1b2a;
+      --panel: rgba(16, 31, 49, 0.95);
+      --panel-2: rgba(19, 39, 61, 0.96);
+      --primary: #63b3ff;
+      --secondary: #7ef0d2;
+      --success: #49d69a;
+      --warning: #f5c76a;
+      --danger: #ff7388;
+      --text: #ebf5ff;
+      --muted: #b7c9dd;
+      --line: rgba(157, 204, 255, 0.18);
+      --shadow: rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99, 179, 255, 0.15), transparent 22%),
+        radial-gradient(circle at top right, rgba(126, 240, 210, 0.12), transparent 18%),
+        linear-gradient(180deg, var(--bg) 0%, #0e1b2a 42%, #0b1421 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 36px auto;
+      padding: 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, rgba(7, 17, 31, 0.94), rgba(17, 34, 52, 0.94));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(99,179,255,0.12), rgba(126,240,210,0.08), rgba(255,115,136,0.06));
+      pointer-events: none;
+    }
+
+    .header > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      letter-spacing: -0.06em;
+      color: var(--text);
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .diagram {
+      background: linear-gradient(180deg, rgba(16, 31, 49, 0.96), rgba(12, 24, 38, 0.96));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.24);
+      padding: 24px;
+    }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      min-width: 170px;
+      background: linear-gradient(180deg, rgba(99, 179, 255, 0.09), rgba(17, 34, 52, 0.9));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .box h3 {
+      margin: 0 0 8px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .box p {
+      margin: 0;
+      font-size: 0.76rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .box.report-box {
+      background: linear-gradient(180deg, rgba(126, 240, 210, 0.12), rgba(17, 34, 52, 0.9));
+      border-color: rgba(126, 240, 210, 0.28);
+    }
+
+    .box.github-box {
+      background: linear-gradient(180deg, rgba(99, 179, 255, 0.12), rgba(17, 34, 52, 0.92));
+      border-color: rgba(99, 179, 255, 0.26);
+    }
+
+    .box.bs-box {
+      background: linear-gradient(180deg, rgba(245, 199, 106, 0.14), rgba(17, 34, 52, 0.9));
+      border-color: rgba(245, 199, 106, 0.2);
+    }
+
+    .arrow {
+      font-size: 2rem;
+      color: var(--primary);
+      line-height: 1;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    .section {
+      margin-top: 28px;
+    }
+
+    .section h2 {
+      font-size: 1.35rem;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(21, 37, 57, 0.94), rgba(12, 23, 35, 0.94));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.16);
+    }
+
+    .card h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-size: 1.06rem;
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .report-structure {
+      background: linear-gradient(180deg, rgba(21, 37, 57, 0.94), rgba(12, 23, 35, 0.94));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 18px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+    }
+
+    .report-tree {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.9;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+    }
+
+    .report-tree strong {
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: 24px;
+      background: rgba(99, 179, 255, 0.08);
+      border: 1px solid rgba(99, 179, 255, 0.24);
+      border-left: 5px solid var(--primary);
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: var(--text);
+      line-height: 1.6;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Playwright CI/CD Workflow</h1>
+      <p>Local execution + GitHub Actions + BrowserStack + GitHub Pages preview</p>
+    </div>
+
+    <div class="diagram">
+      <div class="flow">
+        <div class="box github-box">
+          <h3>Code & Tests</h3>
+          <p>Playwright spec + page objects + fixtures</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box github-box">
+          <h3>GitHub Repo</h3>
+          <p>Source controlled and versioned</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box github-box">
+          <h3>GitHub Actions</h3>
+          <p>Smoke, sanity, regression, common, Pages</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box bs-box">
+          <h3>BrowserStack / Local</h3>
+          <p>Targeted OS/browser execution</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="box report-box">
+          <h3>Reports & Pages</h3>
+          <p>Dashboard + ZIP + GitHub Pages preview</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-structure">
+      <h2 style="margin-top:0; margin-bottom: 12px; font-size:1.2rem; color: var(--text);">Report Structure</h2>
+      <pre class="report-tree"><strong>reports/</strong>
+├── customreport.html
+├── index.html
+├── playwright-report/
+├── test-results/
+│   ├── screenshots/
+│   ├── traces/
+│   └── artifacts/
+├── log/
+│   └── browserstack.log
+├── html-report/
+└── zip/
+    └── playwright-report-dashboard.zip</pre>
+    </div>
+
+    <div class="section">
+      <h2>Current CI/CD flow</h2>
+      <div class="cards">
+        <div class="card">
+          <h4>1. Local execution</h4>
+          <ul>
+            <li>Developers validate the automation locally using the root-level fixtures and page objects.</li>
+            <li>Tests can be filtered with tags such as @smoke, @sanity, and @regression.</li>
+            <li>Results are written to the common reports folder.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>2. GitHub Actions orchestration</h4>
+          <ul>
+            <li>Workflows trigger smoke, sanity, regression, and browserstack runs on demand.</li>
+            <li>Node is installed, dependencies are restored, and Playwright browser dependencies are set up.</li>
+            <li>The project uses a single BrowserStack target instead of expanding into all OS/browser combinations.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>3. BrowserStack cloud validation</h4>
+          <ul>
+            <li>The browserstack.yml file is intentionally narrowed to one execution target.</li>
+            <li>Cloud run is used for targeted compatibility validation and on-demand runs.</li>
+            <li>This avoids noisy matrix execution and keeps the pipeline predictable.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>4. Dashboard and publishing</h4>
+          <ul>
+            <li>The custom HTML report is generated from the execution results and stored under reports/.</li>
+            <li>GitHub Pages publishes only the final successful build to the public site.</li>
+            <li>A ZIP artifact is also uploaded so it can be downloaded from the GitHub Actions run.</li>
+            <li>The dashboard root is index.html, while customreport.html is kept as the direct static file.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Why this flow is strong</h2>
+      <div class="cards">
+        <div class="card">
+          <h4>Fast local feedback</h4>
+          <ul>
+            <li>Quick iteration before pushing code</li>
+            <li>No unnecessary cloud cost during development</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Reliable CI</h4>
+          <ul>
+            <li>Workflows trigger only when required</li>
+            <li>Test publishing is gated on success</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Cloud confidence</h4>
+          <ul>
+            <li>BrowserStack runs validate real environment compatibility</li>
+            <li>Single target keeps execution focused</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Professional reporting</h4>
+          <ul>
+            <li>Static dashboard is easy to review online</li>
+            <li>Artifact ZIP helps with downloadable evidence</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Recommended approach:</strong> keep local runs and browserstack runs separate but deterministic, publish the HTML report after a green build, and keep all generated artifacts in one central reports folder for easy access and traceability.
+    </div>
+  </div>
+</body>
+</html>
