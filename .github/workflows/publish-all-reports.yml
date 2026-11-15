@@ -2,6 +2,13 @@ name: Publish All Workflow Reports
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "OrangeHRM Smoke Tests"
+      - "OrangeHRM Sanity Tests"
+      - "OrangeHRM Regression"
+      - "Playwright BrowserStack Tests"
+    types: [completed]
   push:
     branches: [main]
 
