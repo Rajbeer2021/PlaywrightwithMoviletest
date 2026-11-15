@@ -45,3 +45,11 @@ jobs:
           name: playwright-report-dashboard
           path: playwright-report-dashboard.zip
           retention-days: 30
+
+      - name: Add artifact link to job summary
+        if: success()
+        run: |
+          echo "## Playwright Report Artifact" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Artifact name: playwright-report-dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "Download from the Artifacts section of this workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
