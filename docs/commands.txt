@@ -2,16 +2,18 @@ FINAL COMMAND REFERENCE
 
 IMPORTANT
 - Keep only one BrowserStack YAML file: browserstack.yml
-- Do not hardcode credentials in repo files
-- Load BrowserStack credentials into the active shell before running BrowserStack commands
-- Use local Playwright commands for smoke/sanity/regression runs without BrowserStack matrix expansion
+- Do not hardcode BrowserStack credentials in repo files
+- Load credentials in the active shell before BrowserStack runs
+- Use local Playwright commands for smoke/sanity/regression runs
+- BrowserStack runs should use one selected target only, not the full matrix
 
 PowerShell: set BrowserStack credentials and log folder
 $env:BROWSERSTACK_USERNAME="YOUR_BROWSERSTACK_USERNAME"
 $env:BROWSERSTACK_ACCESS_KEY="YOUR_BROWSERSTACK_ACCESS_KEY"
 $env:BROWSERSTACK_LOG_DIR="./reports/log"
+$env:BROWSERSTACK_LOG_LEVEL="error"
 
-Local Playwright runs (headless + headed)
+Local Playwright runs
 # Smoke - headless
 npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js
 
@@ -30,74 +32,99 @@ npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwr
 # Regression - headed
 npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js --headed
 
-# Full local suite
+# Full local suite (all tests)
 npx playwright test tests/orangehrm.spec.js --config=playwright.config.js
 
-BrowserStack runs (using single YAML only)
-# BrowserStack smoke
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-# BrowserStack regression
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-# BrowserStack sanity
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@sanity" -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-# BrowserStack full suite
-npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-Single sequential command block (copy/paste)
-$env:BROWSERSTACK_USERNAME="YOUR_BROWSERSTACK_USERNAME";
-$env:BROWSERSTACK_ACCESS_KEY="YOUR_BROWSERSTACK_ACCESS_KEY";
-$env:BROWSERSTACK_LOG_DIR="./reports/log";
-Write-Host "LOCAL SMOKE HEADLESS";
- npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js;
-Write-Host "LOCAL SMOKE HEADED";
- npx playwright test tests/orangehrm.spec.js --grep "@smoke" --config=playwright.config.js --headed;
-Write-Host "LOCAL SANITY HEADLESS";
- npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js;
-Write-Host "LOCAL SANITY HEADED";
- npx playwright test tests/orangehrm.spec.js --grep "@sanity" --config=playwright.config.js --headed;
-Write-Host "LOCAL REGRESSION HEADLESS";
- npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js;
-Write-Host "LOCAL REGRESSION HEADED";
- npx playwright test tests/orangehrm.spec.js --grep "@regression" --config=playwright.config.js --headed;
-Write-Host "BROWSERSTACK SMOKE";
- npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome;
-Write-Host "BROWSERSTACK REGRESSION";
- npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome;
-Write-Host "BROWSERSTACK SANITY";
- npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@sanity" -- --config=playwright.browserstack.config.js --project=windows-chrome
-
-NPM scripts
+# Full local suite using npm scripts
 npm run test:smoke
 npm run test:sanity
 npm run test:regression
+npm run test:all
+
+# Android Chrome config
+npx playwright test tests/orangehrm.spec.js --config=playwright.android.config.js --project="Android Chrome"
+
+# Android Chrome + smoke tag
+npx playwright test tests/orangehrm.spec.js --config=playwright.android.config.js --project="Android Chrome" --grep "@smoke"
+
+# Android Chrome + regression tag
+npx playwright test tests/orangehrm.spec.js --config=playwright.android.config.js --project="Android Chrome" --grep "@regression"
+
+# Edge run (desktop Edge via BrowserStack target)
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-edge
+
+# Edge run with smoke suite
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-edge
+
+BrowserStack runs
+# Single YAML is used for one target only
+# Supported BrowserStack targets:
+# windows-chrome
+# windows10-chrome
+# windows-edge
+# windows-firefox
+# macos-safari
+# samsung-s25-chrome
+# pixel10-chrome
+# pixel9-chrome
+
+# Example: smoke on Windows Chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# Example: sanity on Windows Chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@sanity" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# Example: regression on Windows Chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# Example: full suite on Windows Chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+
+# BrowserStack target list - all supported OS/browser/device combinations
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-edge
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=windows-firefox
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=macos-safari
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=samsung-s25-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=pixel10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@smoke" -- --config=playwright.browserstack.config.js --project=pixel9-chrome
+
+# Regression on all BrowserStack targets
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-edge
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=windows-firefox
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=macos-safari
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=samsung-s25-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=pixel10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js --grep "@regression" -- --config=playwright.browserstack.config.js --project=pixel9-chrome
+
+# Full BrowserStack suite on all targets
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-edge
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=windows-firefox
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=macos-safari
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=samsung-s25-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=pixel10-chrome
+npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=pixel9-chrome
+
+# NPM scripts for BrowserStack single-target runs
 npm run test:bs:smoke
-npm run test:bs:regression
 npm run test:bs:sanity
+npm run test:bs:regression
+npm run test:bs
 
-Run on-demand from GitHub
-Use these GitHub CLI commands:
-
-gh workflow run smoke.yml --ref main --field run_on_browserstack=false
-gh workflow run smoke.yml --ref main --field run_on_browserstack=true --field browserstack_project=windows-chrome
-
-gh workflow run sanity.yml --ref main --field run_on_browserstack=false
-gh workflow run sanity.yml --ref main --field run_on_browserstack=true --field browserstack_project=windows-chrome
-
-gh workflow run regression.yml --ref main --field run_target=github
-gh workflow run regression.yml --ref main --field run_target=browserstack --field browserstack_project=windows-chrome
-
-gh workflow run browserstack.yml --ref main --field browserstack_project=windows-chrome
+# BrowserStack workflow runner pattern
+# In GitHub Actions, the workflow picks the suite and the single target, then prepares browserstack.yml before execution.
+# Example:
+# gh workflow run browserstack.yml --ref main --field test_type=smoke --field browserstack_project=windows-chrome
+# gh workflow run browserstack.yml --ref main --field test_type=sanity --field browserstack_project=macos-safari
+# gh workflow run browserstack.yml --ref main --field test_type=regression --field browserstack_project=pixel9-chrome
+# gh workflow run browserstack.yml --ref main --field test_type=all --field browserstack_project=windows-edge
 
 Troubleshooting
-- If BrowserStack returns ERROR_INVALID_CREDENTIALS, the username or access key is wrong, expired, or not loaded into the current PowerShell session.
-- If you want a different BrowserStack target, update the single platform entry in browserstack.yml and rerun.
-- Keep the reports in one folder: ./reports
-
-If you want, I can next give you the exact commands for:
-1. local smoke only,
-2. local regression only,
-3. BrowserStack single target only,
-4. GitHub Actions-ready commands with secrets.
+- If BrowserStack returns ERROR_INVALID_CREDENTIALS, check the username and access key in the active PowerShell session.
+- If you want a different target, update the single BrowserStack YAML or re-create it for the selected project.
+- Reports are generated under ./reports and ./reports/log.
