@@ -1,7 +1,4 @@
 
-//const { test, expect } = require('../fixtures/android-test');
-//const { test, expect } = require('../fixtures/desktop-test');
-
 const { test, expect } = require('../fixtures/test');
 const LoginPage = require('../pages/LoginPage');
 const DashboardPage = require('../pages/DashboardPage');

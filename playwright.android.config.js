@@ -1,6 +1,8 @@
 
 const { defineConfig } = require('@playwright/test');
 
+process.env.BROWSER_TARGET = 'android';
+
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 60000,

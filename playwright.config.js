@@ -1,6 +1,8 @@
 
 const { defineConfig } = require('@playwright/test');
 
+process.env.BROWSER_TARGET = process.env.BROWSER_TARGET || 'desktop';
+
 const isCI = !!process.env.CI;
 
 module.exports = defineConfig({
