@@ -62,13 +62,14 @@ jobs:
           };
 
           const yaml = platforms[target] || platforms['samsung-s24-chrome'];
+          fs.writeFileSync('browserstack.yml', yaml);
           fs.writeFileSync('browserstack-selected.yml', yaml);
           console.log(`Prepared BrowserStack config for target: ${target}`);
           NODE
 
       - name: Run BrowserStack Playwright tests
         env:
-          BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack-selected.yml
+          BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack.yml
         run: |
           npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js
 
