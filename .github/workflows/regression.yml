@@ -4,14 +4,6 @@ name: OrangeHRM Regression
 on:
   workflow_dispatch:
     inputs:
-      run_target:
-        description: Choose where to run the regression suite
-        required: false
-        type: choice
-        default: github
-        options:
-          - github
-          - browserstack
       github_browser:
         description: GitHub runner browser for regression tests
         required: false
@@ -21,20 +13,6 @@ on:
           - windows-chrome
           - windows-edge
           - windows-firefox
-      browserstack_project:
-        description: BrowserStack target project when BrowserStack is selected
-        required: false
-        type: choice
-        default: windows-chrome
-        options:
-          - windows-chrome
-          - windows10-chrome
-          - windows-edge
-          - windows-firefox
-          - macos-safari
-          - samsung-s25-chrome
-          - pixel10-chrome
-          - pixel9-chrome
 
 jobs:
   regression:
@@ -61,22 +39,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run regression tests on GitHub runner
-        if: ${{ inputs.run_target == 'github' }}
         run: |
           echo "Running GitHub regression tests on ${{ inputs.github_browser }}"
           npm run test:regression
-
-      - name: Run regression tests on BrowserStack
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_target == 'browserstack' }}
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          BROWSERSTACK_CONFIG_FILE_PATH: ./browserstack.yml
-          BROWSERSTACK_LOG_DIR: ./reports/log
-          BROWSERSTACK_LOG_LEVEL: error
-        run: |
-          echo "Running BrowserStack regression tests on ${{ inputs.browserstack_project }}"
-          npx browserstack-node-sdk playwright test tests/orangehrm.spec.js -- --config=playwright.browserstack.config.js --project=${{ inputs.browserstack_project }}
 
       - name: Generate custom HTML report
         if: always()
